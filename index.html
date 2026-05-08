@@ -95,7 +95,7 @@ body { font-family: 'Nunito','Arial Rounded MT Bold',Arial,sans-serif; backgroun
 .part-box { background:var(--card); border:1px solid var(--bdr); border-radius:20px; padding:18px; width:100%; max-width:440px; }
 .part-box h3 { font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:1.5px; color:var(--cy); margin-bottom:12px; }
 .inp-row { display:flex; gap:8px; margin-bottom:10px; }
-.inp-row input { flex:1; background:rgba(255,255,255,.09); border:1px solid rgba(255,255,255,.2); border-radius:12px; padding:11px 14px; color:#fff; font-family:inherit; font-size:15px; outline:none; transition:border .2s; }
+.inp-row input { flex:1; background:rgba(255,255,255,.09); border:1px solid rgba(255,255,255,.2); border-radius:12px; padding:11px 14px; color:#fff; font-family:inherit; font-size:16px; outline:none; transition:border .2s; }
 .inp-row input:focus { border-color:var(--mg); }
 .inp-row input::placeholder { color:rgba(255,255,255,.33); }
 .btn-add { background:var(--mg); border:none; border-radius:12px; width:44px; height:44px; color:#fff; font-size:24px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:transform .15s; flex-shrink:0; }
@@ -118,8 +118,8 @@ body { font-family: 'Nunito','Arial Rounded MT Bold',Arial,sans-serif; backgroun
 }
 .roul-title { font-family: 'Bangers', cursive; font-size: 30px; letter-spacing: 2px; color: var(--go); text-align: center; }
 .q-counter { font-size: 12px; color: rgba(255,255,255,.45); text-align: center; }
-.roul-wrap { position: relative; width: 290px; height: 290px; }
-#roulCanvas { border-radius: 50%; box-shadow: 0 0 55px rgba(233,30,140,.4), 0 0 25px rgba(124,58,237,.3); }
+.roul-wrap { position: relative; width: min(82vw, 290px); height: min(82vw, 290px); }
+#roulCanvas { width: 100%; height: 100%; border-radius: 50%; box-shadow: 0 0 55px rgba(233,30,140,.4), 0 0 25px rgba(124,58,237,.3); display: block; }
 .roul-pin { position: absolute; right: -18px; top: 50%; transform: translateY(-50%); font-size: 32px; filter: drop-shadow(0 0 8px var(--go)); animation: blink 1.2s ease-in-out infinite; }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.55} }
 .roul-center { position: absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:46px; height:46px; background: var(--dk); border-radius:50%; border:3px solid var(--go); display:flex; align-items:center; justify-content:center; font-size:20px; z-index:5; }
@@ -234,7 +234,68 @@ body { font-family: 'Nunito','Arial Rounded MT Bold',Arial,sans-serif; backgroun
 .voces-footer { opacity:.55; display:flex; flex-direction:column; align-items:center; gap:4px; }
 .voces-footer img { height:32px; }
 .voces-footer span { font-size:10px; color:rgba(255,255,255,.35); }
-@media(max-width:440px){ .intro-nico{font-size:48px} .q-text{font-size:17px} }
+/* ══ TOUCH OPTIMIZATION ══════════════════════════ */
+button, input, .opt, .tf-btn {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ══ TABLET ≤ 768px ══════════════════════════════ */
+@media (max-width: 768px) {
+  .q-card { padding: 20px 16px; }
+  .q-text { font-size: 18px; }
+  .btn-spin { width: 100%; max-width: 340px; }
+  .btn-go   { width: 100%; max-width: 340px; }
+  .winner-box { min-width: 0; width: 90%; max-width: 340px; }
+  .prog-wrap  { max-width: 88%; }
+  .btn-main   { font-size: 18px; }
+  #s-roulette { padding-top: 20px; gap: 10px; }
+}
+
+/* ══ PHONE ≤ 480px ═══════════════════════════════ */
+@media (max-width: 480px) {
+  .screen { padding-left: 12px; padding-right: 12px; padding-bottom: 36px; }
+  #s-roulette { justify-content: flex-start; padding-top: 14px; gap: 8px; }
+  .roul-title  { font-size: 22px; }
+  .q-counter   { font-size: 11px; }
+  .winner-name { font-size: 28px; }
+  .q-text  { font-size: 16px; }
+  .q-hint  { font-size: 12px; }
+  .q-icon  { font-size: 38px; margin-bottom: 8px; }
+  .q-card  { padding: 16px 13px; border-radius: 18px; }
+  .q-header { gap: 5px; }
+  .q-player { font-size: 12px; padding: 5px 11px; }
+  .q-badge  { font-size: 10px; padding: 5px 9px; }
+  .q-counter-chip { font-size: 10px; padding: 4px 8px; }
+  .tf-btn  { font-size: 20px; padding: 14px 6px; }
+  .opt     { font-size: 13px; padding: 11px 13px; }
+  .btn-main { font-size: 17px; padding: 15px 20px; border-radius: 16px; }
+  .btn-next { padding: 13px; font-size: 14px; }
+  .btn-spin { font-size: 16px; padding: 13px 24px; }
+  .btn-go   { font-size: 14px; padding: 12px 26px; }
+  .btn-award { font-size: 13px; padding: 11px; }
+  .btn-back  { font-size: 12px; padding: 7px 14px; }
+  .nico-card-wrap { max-width: 210px; }
+  .cover-name { letter-spacing: 3px; }
+  .part-box { padding: 14px; }
+  .music-widget { top: 8px; right: 8px; padding: 4px 8px 4px 4px; }
+  .music-track  { max-width: 75px; font-size: 10px; }
+  .music-play-btn { width: 32px; height: 32px; font-size: 17px; }
+  .scores-box { padding: 10px 12px; }
+  .s-name { font-size: 11px; min-width: 65px; }
+  .end-title { font-size: 36px; }
+  .pod-1 { width: 88px; height: 95px; }
+  .pod-2 { width: 74px; height: 74px; }
+  .pod-3 { width: 66px; height: 56px; }
+}
+
+/* ══ PHONE MUY PEQUEÑO ≤ 360px ═══════════════════ */
+@media (max-width: 360px) {
+  .nico-card-wrap { max-width: 180px; }
+  .tf-btn  { font-size: 17px; }
+  .btn-main { font-size: 15px; }
+  .cover-name { font-size: clamp(40px, 13vw, 60px); }
+}
 
 /* MUSIC WIDGET */
 .music-widget {
