@@ -278,9 +278,10 @@ button, input, .opt, .tf-btn {
   .nico-card-wrap { max-width: 210px; }
   .cover-name { letter-spacing: 3px; }
   .part-box { padding: 14px; }
-  .music-widget { top: 8px; right: 8px; padding: 4px 8px 4px 4px; }
-  .music-track  { max-width: 75px; font-size: 10px; }
-  .music-play-btn { width: 32px; height: 32px; font-size: 17px; }
+  .music-widget { top: 8px; right: 8px; padding: 4px 8px 4px 4px; gap: 2px; }
+  .music-play-btn { width: 30px; height: 30px; font-size: 16px; }
+  .music-nav-btn { width: 18px; height: 18px; font-size: 11px; }
+  .music-select { max-width: 72px; font-size: 10px; }
   .scores-box { padding: 10px 12px; }
   .s-name { font-size: 11px; min-width: 65px; }
   .end-title { font-size: 36px; }
@@ -300,34 +301,36 @@ button, input, .opt, .tf-btn {
 /* MUSIC WIDGET */
 .music-widget {
   position:fixed; top:12px; right:12px; z-index:1100;
-  display:flex; align-items:center; gap:5px;
-  background:rgba(15,10,30,.88); border:1.5px solid var(--bdr);
-  border-radius:24px; padding:5px 10px 5px 5px;
-  backdrop-filter:blur(8px); box-shadow:0 4px 16px rgba(0,0,0,.35);
+  display:flex; align-items:center; gap:3px;
+  background:rgba(15,10,30,.92); border:1.5px solid var(--bdr);
+  border-radius:30px; padding:5px 10px 5px 5px;
+  backdrop-filter:blur(10px); box-shadow:0 4px 20px rgba(0,0,0,.4);
   transition:border-color .3s, box-shadow .3s;
 }
-.music-widget.playing { border-color:var(--mg); box-shadow:0 0 18px rgba(233,30,140,.45); }
-@keyframes hintPulse { 0%,100%{box-shadow:0 4px 16px rgba(0,0,0,.35)} 50%{box-shadow:0 0 22px rgba(0,229,255,.65)} }
+.music-widget.playing { border-color:var(--mg); box-shadow:0 0 20px rgba(233,30,140,.5); }
+@keyframes hintPulse { 0%,100%{box-shadow:0 4px 20px rgba(0,0,0,.4)} 50%{box-shadow:0 0 24px rgba(0,229,255,.7)} }
 .music-widget.hint { animation:hintPulse 2s ease-in-out 4; }
 .music-play-btn {
-  background:none; border:none; color:#fff; font-size:20px; cursor:pointer;
-  width:36px; height:36px; border-radius:50%;
+  background:none; border:none; color:#fff; font-size:18px; cursor:pointer;
+  width:34px; height:34px; border-radius:50%; flex-shrink:0;
   display:flex; align-items:center; justify-content:center; transition:transform .15s;
 }
 .music-play-btn:hover { transform:scale(1.12); }
-.music-track {
-  font-size:11px; font-weight:700; color:rgba(255,255,255,.78);
-  max-width:110px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-  display:none;
+.music-nav-btn {
+  background:none; border:none; color:rgba(255,255,255,.55); font-size:13px;
+  cursor:pointer; padding:0; line-height:1; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  width:22px; height:22px; transition:color .15s, transform .1s;
 }
-.music-widget.playing .music-track { display:block; }
-.music-next-btn {
-  background:none; border:none; color:rgba(255,255,255,.5); font-size:14px;
-  cursor:pointer; padding:0 2px; line-height:1; display:none;
-  transition:color .15s;
+.music-nav-btn:hover { color:#fff; transform:scale(1.15); }
+.music-select {
+  background: transparent; border:none;
+  color:rgba(255,255,255,.82); font-size:11px; font-weight:700;
+  max-width:120px; cursor:pointer; outline:none; font-family:inherit;
+  -webkit-appearance:none; appearance:none;
+  text-overflow:ellipsis;
 }
-.music-next-btn:hover { color:#fff; }
-.music-widget.playing .music-next-btn { display:flex; align-items:center; }
+.music-select option { background:#1a0a2e; color:#fff; }
 
 /* Q HEADER counter chip */
 .q-counter-chip { background:rgba(255,215,0,.12); border:1px solid rgba(255,215,0,.35); border-radius:14px; padding:4px 10px; font-size:11px; font-weight:800; color:var(--go); letter-spacing:.5px; }
@@ -339,9 +342,10 @@ button, input, .opt, .tf-btn {
 
 <!-- MÚSICA DE FONDO -->
 <div id="musicWidget" class="music-widget hint">
-  <button id="btnMusic" class="music-play-btn" type="button" aria-label="Play/Pausa música" title="Activar música">🔇</button>
-  <span class="music-track" id="musicTrack"></span>
-  <button id="btnMusicNext" class="music-next-btn" type="button" title="Siguiente canción">⏭</button>
+  <button id="btnMusic"     class="music-play-btn" type="button" aria-label="Play/Pausa" title="Play / Pausa">🔇</button>
+  <button id="btnMusicPrev" class="music-nav-btn"  type="button" title="Canción anterior">⏮</button>
+  <select id="musicSelect"  class="music-select"   title="Elegir canción"></select>
+  <button id="btnMusicNext" class="music-nav-btn"  type="button" title="Siguiente canción">⏭</button>
 </div>
 <audio id="bgm" loop preload="none"></audio>
 
@@ -712,19 +716,19 @@ function songLabel(path) {
 
 // ── Helpers de música ─────────────────────────────
 function bgmLoadAndPlay() {
-  const bgm = document.getElementById('bgm');
+  const bgm    = document.getElementById('bgm');
   const widget = document.getElementById('musicWidget');
   const btnMusic = document.getElementById('btnMusic');
-  const track = document.getElementById('musicTrack');
+  const sel    = document.getElementById('musicSelect');
   bgm.src = PLAYLIST[bgmIdx];
   bgm.volume = 0.45;
   bgm.play().then(() => {
     btnMusic.textContent = '🔊';
     widget.classList.add('playing');
     widget.classList.remove('hint');
-    track.textContent = songLabel(PLAYLIST[bgmIdx]);
+    sel.value = bgmIdx;
     localStorage.setItem('bgmEnabled', '1');
-  }).catch(() => toast('🎵 No se encontró el archivo de audio. Verifica la carpeta audio/'));
+  }).catch(() => toast('🎵 No se encontró el archivo. Verifica la carpeta audio/'));
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -745,7 +749,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const bgm      = document.getElementById('bgm');
   const widget   = document.getElementById('musicWidget');
   const btnMusic = document.getElementById('btnMusic');
-  const btnNext_ = document.getElementById('btnMusicNext');
+  const btnPrev  = document.getElementById('btnMusicPrev');
+  const btnNext  = document.getElementById('btnMusicNext');
+  const sel      = document.getElementById('musicSelect');
+
+  // Poblar el select con las canciones del playlist
+  PLAYLIST.forEach((path, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = songLabel(path);
+    sel.appendChild(opt);
+  });
+  sel.value = 0;
 
   // Avance automático al terminar canción
   bgm.addEventListener('ended', () => {
@@ -753,11 +768,10 @@ document.addEventListener('DOMContentLoaded', () => {
     bgmLoadAndPlay();
   });
 
-  // Solo muestra ⏭ si hay más de 1 canción
-  if (PLAYLIST.length <= 1) btnNext_.style.display = 'none';
-
+  // Play / Pausa
   btnMusic.addEventListener('click', () => {
     if (bgm.paused) {
+      bgmIdx = parseInt(sel.value);
       bgmLoadAndPlay();
     } else {
       bgm.pause();
@@ -767,8 +781,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  btnNext_.addEventListener('click', () => {
+  // Canción anterior
+  btnPrev.addEventListener('click', () => {
+    bgmIdx = (bgmIdx - 1 + PLAYLIST.length) % PLAYLIST.length;
+    bgmLoadAndPlay();
+  });
+
+  // Canción siguiente
+  btnNext.addEventListener('click', () => {
     bgmIdx = (bgmIdx + 1) % PLAYLIST.length;
+    bgmLoadAndPlay();
+  });
+
+  // Elegir canción desde el combo
+  sel.addEventListener('change', () => {
+    bgmIdx = parseInt(sel.value);
     bgmLoadAndPlay();
   });
 
