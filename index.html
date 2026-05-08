@@ -278,10 +278,11 @@ button, input, .opt, .tf-btn {
   .nico-card-wrap { max-width: 210px; }
   .cover-name { letter-spacing: 3px; }
   .part-box { padding: 14px; }
-  .music-widget { top: 8px; right: 8px; padding: 4px 8px 4px 4px; gap: 2px; }
-  .music-play-btn { width: 30px; height: 30px; font-size: 16px; }
-  .music-nav-btn { width: 18px; height: 18px; font-size: 11px; }
-  .music-select { max-width: 72px; font-size: 10px; }
+  /* en móvil: baja al fondo para no tapar la portada */
+  .music-widget { top:auto; bottom:80px; right:12px; padding:4px 10px 4px 4px; gap:2px; }
+  .music-play-btn { width:30px; height:30px; font-size:16px; }
+  .music-nav-btn  { width:18px; height:18px; font-size:11px; }
+  .music-label    { max-width:70px; font-size:10px; }
   .scores-box { padding: 10px 12px; }
   .s-name { font-size: 11px; min-width: 65px; }
   .end-title { font-size: 36px; }
@@ -322,15 +323,12 @@ button, input, .opt, .tf-btn {
   display:flex; align-items:center; justify-content:center;
   width:22px; height:22px; transition:color .15s, transform .1s;
 }
-.music-nav-btn:hover { color:#fff; transform:scale(1.15); }
-.music-select {
-  background: transparent; border:none;
-  color:rgba(255,255,255,.82); font-size:11px; font-weight:700;
-  max-width:120px; cursor:pointer; outline:none; font-family:inherit;
-  -webkit-appearance:none; appearance:none;
-  text-overflow:ellipsis;
+.music-nav-btn:hover { color:#fff; transform:scale(1.18); }
+.music-label {
+  font-size:11px; font-weight:700; color:rgba(255,255,255,.78);
+  max-width:110px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  letter-spacing:.3px; user-select:none;
 }
-.music-select option { background:#1a0a2e; color:#fff; }
 
 /* Q HEADER counter chip */
 .q-counter-chip { background:rgba(255,215,0,.12); border:1px solid rgba(255,215,0,.35); border-radius:14px; padding:4px 10px; font-size:11px; font-weight:800; color:var(--go); letter-spacing:.5px; }
@@ -344,7 +342,7 @@ button, input, .opt, .tf-btn {
 <div id="musicWidget" class="music-widget hint">
   <button id="btnMusic"     class="music-play-btn" type="button" aria-label="Play/Pausa" title="Play / Pausa">🔇</button>
   <button id="btnMusicPrev" class="music-nav-btn"  type="button" title="Canción anterior">⏮</button>
-  <select id="musicSelect"  class="music-select"   title="Elegir canción"></select>
+  <span   id="musicLabel"   class="music-label">música</span>
   <button id="btnMusicNext" class="music-nav-btn"  type="button" title="Siguiente canción">⏭</button>
 </div>
 <audio id="bgm" loop preload="none"></audio>
@@ -716,17 +714,17 @@ function songLabel(path) {
 
 // ── Helpers de música ─────────────────────────────
 function bgmLoadAndPlay() {
-  const bgm    = document.getElementById('bgm');
-  const widget = document.getElementById('musicWidget');
+  const bgm      = document.getElementById('bgm');
+  const widget   = document.getElementById('musicWidget');
   const btnMusic = document.getElementById('btnMusic');
-  const sel    = document.getElementById('musicSelect');
+  const label    = document.getElementById('musicLabel');
   bgm.src = PLAYLIST[bgmIdx];
   bgm.volume = 0.45;
   bgm.play().then(() => {
     btnMusic.textContent = '🔊';
     widget.classList.add('playing');
     widget.classList.remove('hint');
-    sel.value = bgmIdx;
+    label.textContent = songLabel(PLAYLIST[bgmIdx]);
     localStorage.setItem('bgmEnabled', '1');
   }).catch(() => toast('🎵 No se encontró el archivo. Verifica la carpeta audio/'));
 }
@@ -751,16 +749,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnMusic = document.getElementById('btnMusic');
   const btnPrev  = document.getElementById('btnMusicPrev');
   const btnNext  = document.getElementById('btnMusicNext');
-  const sel      = document.getElementById('musicSelect');
-
-  // Poblar el select con las canciones del playlist
-  PLAYLIST.forEach((path, i) => {
-    const opt = document.createElement('option');
-    opt.value = i;
-    opt.textContent = songLabel(path);
-    sel.appendChild(opt);
-  });
-  sel.value = 0;
 
   // Avance automático al terminar canción
   bgm.addEventListener('ended', () => {
@@ -771,11 +759,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // Play / Pausa
   btnMusic.addEventListener('click', () => {
     if (bgm.paused) {
-      bgmIdx = parseInt(sel.value);
       bgmLoadAndPlay();
     } else {
       bgm.pause();
       btnMusic.textContent = '🔇';
+      document.getElementById('musicLabel').textContent = 'música';
       widget.classList.remove('playing');
       localStorage.setItem('bgmEnabled', '0');
     }
@@ -790,12 +778,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Canción siguiente
   btnNext.addEventListener('click', () => {
     bgmIdx = (bgmIdx + 1) % PLAYLIST.length;
-    bgmLoadAndPlay();
-  });
-
-  // Elegir canción desde el combo
-  sel.addEventListener('change', () => {
-    bgmIdx = parseInt(sel.value);
     bgmLoadAndPlay();
   });
 
