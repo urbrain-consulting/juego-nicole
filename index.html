@@ -275,13 +275,25 @@ button, input, .opt, .tf-btn {
   .btn-go   { font-size: 14px; padding: 12px 26px; }
   .btn-award { font-size: 13px; padding: 11px; }
   .btn-back  { font-size: 12px; padding: 7px 14px; }
-  .nico-card-wrap { max-width: 210px; }
+  /* ── Portada: espacio arriba para el widget fijo ── */
+  .cover-top { padding-top: 62px; }
+  /* Foto más ancha pero menos alta (4:3) para que quepa más contenido */
+  .nico-card-wrap { max-width: min(78vw, 300px); }
+  .nico-photo-frame { aspect-ratio: 4/3; }
+  /* Reducir espacios verticales para que el botón quede visible */
+  .cover-title-wrap { margin-top: 6px; }
+  .cover-sub { font-size: 13px; }
+  .cover-tema { margin-top: 6px; font-size: 12px; }
+  .intro-bottom { gap: 8px; padding-top: 4px; padding-bottom: 24px; }
+  .intro-question { font-size: clamp(16px, 4.5vw, 20px); }
+  .part-box { padding: 12px; }
+  .part-count { font-size: 12px; color: rgba(255,255,255,.6); }
+  /* Widget música: compacto arriba-derecha */
   .cover-name { letter-spacing: 3px; }
-  .part-box { padding: 14px; }
-  .music-widget { top:8px; right:8px; max-width:180px; padding:4px 8px 4px 4px; }
+  .music-widget { top:8px; right:8px; max-width:175px; padding:4px 8px 4px 4px; }
   .music-play-btn { width:28px; height:28px; font-size:15px; }
   .music-nav-btn  { width:18px; height:18px; font-size:11px; }
-  .music-label    { max-width:60px; font-size:9px; }
+  .music-label    { max-width:58px; font-size:9px; }
   .scores-box { padding: 10px 12px; }
   .s-name { font-size: 11px; min-width: 65px; }
   .end-title { font-size: 36px; }
