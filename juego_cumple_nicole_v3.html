@@ -189,6 +189,13 @@ body { font-family: 'Nunito','Arial Rounded MT Bold',Arial,sans-serif; backgroun
 .btn-next { width:100%; max-width:580px; background:linear-gradient(135deg,var(--pu),var(--mg)); border:none; border-radius:14px; padding:14px; color:#fff; font-family:inherit; font-size:15px; font-weight:800; cursor:pointer; transition:transform .15s; display:none; }
 .btn-next:hover { transform:scale(1.02); }
 
+/* TIMER */
+.q-timer { position:relative; width:52px; height:52px; flex-shrink:0; }
+.q-timer svg { transform:rotate(-90deg); display:block; }
+.q-timer-track { fill:none; stroke:rgba(255,255,255,.12); stroke-width:4; }
+.q-timer-ring { fill:none; stroke-width:4; stroke-linecap:round; }
+.q-timer-num { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:900; }
+
 /* BOTÓN PRINCIPAL — inicio del juego */
 .btn-main {
   width:100%; max-width:440px;
@@ -482,6 +489,14 @@ button, input, .opt, .tf-btn {
     <div class="q-player" id="qPlayer">Jugador</div>
     <div class="q-counter-chip" id="qPlayerProgress">1/3</div>
     <div class="q-badge" id="qBadge">tipo</div>
+    <div class="q-timer" id="qTimer">
+      <svg width="52" height="52" viewBox="0 0 52 52">
+        <circle class="q-timer-track" cx="26" cy="26" r="22"/>
+        <circle class="q-timer-ring" id="timerRing" cx="26" cy="26" r="22"
+          stroke-dasharray="138.2" stroke-dashoffset="0" stroke="#10b981"/>
+      </svg>
+      <div class="q-timer-num" id="timerNum" style="color:#10b981">60</div>
+    </div>
   </div>
   <div class="q-card">
     <div class="q-icon" id="qIcon">🎂</div>
@@ -690,6 +705,49 @@ const PLAYLIST = [
   'audio/respirar.mp3',
 ];
 let bgmIdx = 0;
+
+// ── Timer ────────────────────────────────────────
+const TIMER_SECS = 60;
+const TIMER_CIRC = 2 * Math.PI * 22; // ≈ 138.2
+let timerInterval = null;
+let timerLeft = TIMER_SECS;
+
+function startTimer() {
+  stopTimer();
+  timerLeft = TIMER_SECS;
+  updateTimerUI();
+  timerInterval = setInterval(() => {
+    timerLeft--;
+    updateTimerUI();
+    if (timerLeft <= 0) {
+      stopTimer();
+      if (!answered) {
+        answered = true;
+        toast('⏰ ¡Tiempo agotado!');
+        document.querySelectorAll('.opt, .tf-btn').forEach(b => b.disabled = true);
+        const ba = document.querySelector('.btn-award');
+        if (ba) ba.disabled = true;
+        showReveal(); renderScores();
+        document.getElementById('btnNext').style.display = 'block';
+      }
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+}
+
+function updateTimerUI() {
+  const num = document.getElementById('timerNum');
+  const ring = document.getElementById('timerRing');
+  if (!num || !ring) return;
+  num.textContent = timerLeft;
+  ring.style.strokeDashoffset = TIMER_CIRC * (1 - timerLeft / TIMER_SECS);
+  const color = timerLeft > 30 ? '#10b981' : timerLeft > 10 ? '#fbbf24' : '#ef4444';
+  ring.style.stroke = color;
+  num.style.color = color;
+}
 
 // ── Estado del juego ─────────────────────────────
 let participants = [];
@@ -1097,6 +1155,7 @@ function loadQ() {
     const ba = document.createElement('button'); ba.className = 'btn-award';
     ba.textContent = '✅ ¡Correcto! +1 punto a ' + currentPlayer;
     ba.onclick = () => {
+      stopTimer();
       scores[currentPlayer] = (scores[currentPlayer]||0) + 1;
       ba.disabled = true; ba.textContent = '🌟 ¡Punto otorgado!';
       showReveal(); renderScores();
@@ -1108,6 +1167,7 @@ function loadQ() {
     const bs = document.createElement('button'); bs.className = 'btn-skip';
     bs.textContent = '⏭️ Sin punto — continuar';
     bs.onclick = () => {
+      stopTimer();
       showReveal(); renderScores();
       document.getElementById('btnNext').style.display = 'block';
       ba.disabled = true; answered = true;
@@ -1116,10 +1176,11 @@ function loadQ() {
   }
 
   renderScores();
+  startTimer();
 }
 
 function pickOpt(i, cor, btn, grid, q) {
-  if(answered) return; answered = true;
+  if(answered) return; answered = true; stopTimer();
   grid.querySelectorAll('.opt').forEach(b => b.disabled=true);
   if(i === cor) {
     btn.classList.add('correct');
@@ -1136,7 +1197,7 @@ function pickOpt(i, cor, btn, grid, q) {
 }
 
 function pickTF(val, cor, btn, row, q) {
-  if(answered) return; answered = true;
+  if(answered) return; answered = true; stopTimer();
   row.querySelectorAll('.tf-btn').forEach(b => b.disabled=true);
   if(val === cor) {
     btn.classList.add('ok');
@@ -1151,7 +1212,7 @@ function pickTF(val, cor, btn, row, q) {
 }
 
 function pickAB(val, cor, btn, row, q) {
-  if(answered) return; answered = true;
+  if(answered) return; answered = true; stopTimer();
   row.querySelectorAll('.tf-btn').forEach(b => b.disabled=true);
   if(val === cor) {
     btn.classList.add('ok');
@@ -1183,6 +1244,7 @@ function renderScores() {
 // SIGUIENTE / FIN
 // ══════════════════════════════════════════════
 function nextQuestion() {
+  stopTimer();
   currentQ++;
   playerQIdx++;
   if(currentQ >= totalQ) { endGame(); return; }
